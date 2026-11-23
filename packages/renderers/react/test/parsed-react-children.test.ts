@@ -50,4 +50,29 @@ describe('experimental react children', () => {
 		assert.deepEqual(scriptVNode.props.children, ['a = "&amp;";']);
 		assert.deepEqual(styleVNode.props.children, ['a::after { content: "&amp;"; }']);
 	});
+
+	it('passes boolean attributes written without a value as true', () => {
+		const [detailsVNode, buttonVNode, selectVNode] = convert(
+			'<details open></details><button disabled></button><select multiple><option selected>B</option></select>',
+		);
+		assert.equal(detailsVNode.props.open, true);
+		assert.equal(buttonVNode.props.disabled, true);
+		assert.equal(selectVNode.props.multiple, true);
+		assert.equal(selectVNode.props.children[0].props.selected, true);
+	});
+
+	it('keeps empty values of non-boolean attributes', () => {
+		const [imgVNode] = convert('<img alt="">');
+		assert.equal(imgVNode.props.alt, '');
+	});
+
+	it('passes value and checked of inputs as defaults so fields stay editable', () => {
+		const [checkboxVNode, textVNode] = convert(
+			'<input type="checkbox" checked><input value="Type here">',
+		);
+		assert.equal(checkboxVNode.props.defaultChecked, true);
+		assert.equal(checkboxVNode.props.checked, undefined);
+		assert.equal(textVNode.props.defaultValue, 'Type here');
+		assert.equal(textVNode.props.value, undefined);
+	});
 });
